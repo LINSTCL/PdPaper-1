@@ -1,13 +1,5 @@
 # TResNet: High Performance GPU-Dedicated Architecture
-
-
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/tresnet-high-performance-gpu-dedicated/image-classification-on-cifar-10)](https://paperswithcode.com/sota/image-classification-on-cifar-10?p=tresnet-high-performance-gpu-dedicated)<br>
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/tresnet-high-performance-gpu-dedicated/image-classification-on-cifar-100)](https://paperswithcode.com/sota/image-classification-on-cifar-100?p=tresnet-high-performance-gpu-dedicated)<br>
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/imagenet-21k-pretraining-for-the-masses/fine-grained-image-classification-on-stanford)](https://paperswithcode.com/sota/fine-grained-image-classification-on-stanford?p=imagenet-21k-pretraining-for-the-masses)<br>
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/tresnet-high-performance-gpu-dedicated/fine-grained-image-classification-on-oxford)](https://paperswithcode.com/sota/fine-grained-image-classification-on-oxford?p=tresnet-high-performance-gpu-dedicated)<br>
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/imagenet-21k-pretraining-for-the-masses/multi-label-classification-on-ms-coco)](https://paperswithcode.com/sota/multi-label-classification-on-ms-coco?p=imagenet-21k-pretraining-for-the-masses)<br>
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/asymmetric-loss-for-multi-label/multi-label-classification-on-nus-wide)](https://paperswithcode.com/sota/multi-label-classification-on-nus-wide?p=asymmetric-loss-for-multi-label)<br>
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/imagenet-21k-pretraining-for-the-masses/multi-label-classification-on-pascal-voc-2007)](https://paperswithcode.com/sota/multi-label-classification-on-pascal-voc-2007?p=imagenet-21k-pretraining-for-the-masses)<br>
+> From PaddlePaddle, AI Studio@Baidu
 
 [paperV2](https://arxiv.org/pdf/2003.13630.pdf) |
 [pretrained models](MODEL_ZOO.md)
@@ -39,83 +31,6 @@ Official PyTorch Implementation
 > achieve state-of-the-art accuracy on competitive datasets such as
 > Stanford cars (96.0\%), CIFAR-10 (99.0\%), CIFAR-100 (91.5\%) and
 > Oxford-Flowers (99.1\%). They also perform well on multi-label classification and object detection tasks.
-
-## 29/11/2021 Update - New article released, offering new classification head with state-of-the-art results
-Checkout our new project, [Ml-Decoder](https://github.com/Alibaba-MIIL/ML_Decoder), which presents a unified classification head for multi-label, single-label and
-zero-shot tasks. Backbones with ML-Decoder reach SOTA results, while also improving speed-accuracy tradeoff.
-
-<p align="center">
- <table class="tg">
-  <tr>
-    <td class="tg-c3ow"><img src="./figures/main_pic.png" align="center" width="300""></td>
-    <td class="tg-c3ow"><img src="./figures/ms_coco_scores.png" align="center" width="300" ></td>
-
-  </tr>
-</table>
-</p>
-
-## 23/4/2021 Update - ImageNet21K Pretraining
-In a new [article](https://github.com/Alibaba-MIIL/ImageNet21K) we released, we share pretrain weights for TResNet models from ImageNet21K training, that dramatically outperfrom standard pretraining.
-TResNet-M model, for example, improves its ImageNet-1K score, from 80.7% to 83.1% !
-This kind of improvement is consistently achieved on all downstream tasks.
-
-
-## 28/8/2020: V2 of TResNet Article Released
-
-## Sotabench Comparisons
-Comparative results from
-[sotabench benchamrk](https://sotabench.com/benchmarks/image-classification-on-imagenet#code),
-demonstartaing that TReNset models give excellent speed-accuracy tradoff:
-<p align="center">
- <table class="tg">
-  <tr>
-    <td class="tg-c3ow"><img src="./figures/sotabench.png" align="center" width="700" ></td>
-  </tr>
-</table>
-</p>
-
-## 11/6/2020: V1 of TResNet Article Released
-The main change - In addition to single label SOTA results, we also
-added top results for multi-label classification and object detection
-tasks, using TResNet. For example, we set a new SOTA record for MS-COCO
-multi-label dataset, surpassing the previous top results by more than
-2.5% mAP !
-<p align="center">
- <table>
-  <tr align="center">
-    <th align="center">Bacbkone</th>
-    <th>mAP</th>
-  </tr>
-  <tr>
-    <td align="center"> <a href="https://arxiv.org/pdf/1911.09243.pdf"> KSSNet</a> (previous SOTA)</td>
-    <td  align="center">83.7</td>
-  </tr>
-    <tr>
-    <td  align="center"><a href="https://arxiv.org/pdf/2003.13630.pdf">TResNet-L</a></td>
-    <td  align="center"><b>86.4</b></td>
-  </tr>
-  
-</table>
-</p>
-
-
-## 2/6/2020: CVPR-Kaggle competitions
-We participated and won top places in two
-major CVPR-Kaggle competitions:
-* [2nd place](https://www.kaggle.com/c/herbarium-2020-fgvc7/discussion/154186)
-  in Herbarium 2020 competition, out of 153 teams.
-* [7th place](https://www.kaggle.com/c/plant-pathology-2020-fgvc7/discussion/154086)
-  in Plant-Pathology 2020 competition, out of 1317 teams.   
-  <br> *TResNet* was a vital part of our solution for both competitions,
-  allowing us to work on high resolutions and reach top scores while
-  doing fast and efficient experiments.
-  <center>
-   <table class="tg">
-        <thead>
-      <td class="tg-c3ow"><img src="./figures/herbarium_2020.png" align="center" width="300" ></td>
-    </thead>
-    </table>
-  </center>
 
 
 ## Main Article Results
@@ -244,7 +159,7 @@ Comparison of ResNet50 to top modern networks, with similar top-1 ImageNet accur
 </table>
 </p>
 
- 
+
 </p>
 
 #### Transfer Learning SotA Results
@@ -422,7 +337,7 @@ was used to obtain the article results.
 However, TResNet is now an integral part of the popular [rwightman /
 pytorch-image-models](https://github.com/rwightman/pytorch-image-models)
 repo. Using that repo, you can reach very similar results to the one
-stated in the article. 
+stated in the article.
 
 For example, training tresnet_m on [rwightman /
 pytorch-image-models](https://github.com/rwightman/pytorch-image-models) with
