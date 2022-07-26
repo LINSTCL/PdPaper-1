@@ -24,15 +24,13 @@ class SpaceToDepth(nn.Layer):
         x = x.reshape([N, C * (self.bs ** 2), H // self.bs, W // self.bs])
         return x
 
-class SpaceToDepthJit(nn.Layer):
-
-    def __call__(self, x: paddle.fluid.framework.Variable):
-        # assuming hard-coded that block_size==4 for acceleration
-        N, C, H, W = x.shape
-        x = x.reshape([N, C, H // 4, 4, W // 4, 4])  # (N, C, H//bs, bs, W//bs, bs)
-        x = x.transpose([0, 3, 5, 1, 2, 4]).clone()  # (N, bs, bs, C, H//bs, W//bs)
-        x = x.reshape([N, C * 16, H // 4, W // 4])  # (N, C*bs^2, H//bs, W//bs)
-        return x
+def SpaceToDepthJit(x):
+     # assuming hard-coded that block_size==4 for acceleration
+    N, C, H, W = x.shape
+    x = x.reshape([N, C, H // 4, 4, W // 4, 4])  # (N, C, H//bs, bs, W//bs, bs)
+    x = x.transpose([0, 3, 5, 1, 2, 4]).clone()  # (N, bs, bs, C, H//bs, W//bs)
+    x = x.reshape([N, C * 16, H // 4, W // 4])  # (N, C*bs^2, H//bs, W//bs)
+    return x
 
 class DepthToSpace(nn.Layer):
     def __init__(self, block_size):
