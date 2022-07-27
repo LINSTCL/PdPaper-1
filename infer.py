@@ -36,7 +36,6 @@ def main():
     args = parser.parse_args()
     # setup model
     print('creating model...')
-    paddle.disable_static()
     model = create_model(args)
     try:
         temp = os.listdir(args.params_path)
@@ -66,4 +65,5 @@ def main():
         print("final top-1 validation accuracy: {:.2f}".format(prec1_f.avg))
 
 if __name__ == '__main__':
+    paddle.set_device('gpu')
     main()
