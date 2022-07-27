@@ -9,7 +9,8 @@ class my_DatasetFolder(paddle.vision.DatasetFolder):
         if self.transform is not None:
             sample = self.transform(sample)
         target = paddle.to_tensor([target])
-        print(sample.shape)
+        print(sample)
+        exit()
         return sample, target
 
 def get_load_dataset(args):
