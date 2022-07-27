@@ -8,12 +8,10 @@ class my_DatasetFolder(paddle.vision.DatasetFolder):
         sample = self.loader(path)
         if self.transform is not None:
             sample = self.transform(sample)
-        print('1'+str(target))
         target = paddle.to_tensor([target])
-        print('2'+str(target))
         return sample, target
 
-def get_load_dataset(args, feed_list=None, place=None):
+def get_load_dataset(args):
     import os
     data_dir = ''
     if args.train_mode == True:
@@ -34,7 +32,7 @@ def get_load_dataset(args, feed_list=None, place=None):
     def val_tfms(input):
         input = np.array(input)
         input.resize([3,args.input_size,args.input_size])
-        input = paddle.to_tensor(input, dtype=paddle.float32, place=place)
+        input = paddle.to_tensor(input, dtype=paddle.float32)
         return input
     dataset = my_DatasetFolder(data_dir, transform=val_tfms)
     batch_sampler = paddle.io.DistributedBatchSampler(
