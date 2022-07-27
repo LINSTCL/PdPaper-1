@@ -1,39 +1,68 @@
 import time
-import torch
-from torchvision.datasets import ImageFolder
-from torchvision.transforms import transforms
+import paddle
+import numpy as np
 
+class my_DatasetFolder(paddle.vision.DatasetFolder):
+    def __getitem__(self, index):
+        path, target = self.samples[index]
+        sample = self.loader(path)
+        if self.transform is not None:
+            sample = self.transform(sample)
+        target = paddle.to_tensor([target])
+        return sample, target
 
-def create_dataloader(args):
-    val_bs = args.batch_size
-    if args.input_size == 448: # squish
-        val_tfms = transforms.Compose(
-            [transforms.Resize((args.input_size, args.input_size))])
-    else: # crop
-        val_tfms = transforms.Compose(
-            [transforms.Resize(int(args.input_size / args.val_zoom_factor)),
-             transforms.CenterCrop(args.input_size)])
-    val_tfms.transforms.append(transforms.ToTensor())
-    val_dataset = ImageFolder(args.val_dir, val_tfms)
-    val_loader = torch.utils.data.DataLoader(
-        val_dataset, batch_size=val_bs, shuffle=False,
-        num_workers=args.num_workers, pin_memory=True, drop_last=False)
-    return val_loader
+def get_load_dataset(args, feed_list=None, place=None):
+    import os
+    data_dir = ''
+    if args.train_mode == True:
+        data_dir = args.train_dir
+    elif args.val_mode == True:
+        data_dir = args.val_dir
+    else:
+        print('no dataset input')
+        exit()
+    datalist = os.listdir(data_dir)
+    datalist.sort()
+    i = 0
+    for temp in datalist:
+        if temp[0] == 'c':
+            break
+        os.rename(data_dir+'/'+temp, data_dir+'/class_'+str(i))
+        i = i+1
+    def val_tfms(input):
+        input = np.array(input)
+        input.resize([3,args.input_size,args.input_size])
+        input = paddle.to_tensor(input, dtype=paddle.float32, place=place)
+        return input
+    dataset = my_DatasetFolder(data_dir, transform=val_tfms)
+    batch_sampler = paddle.io.DistributedBatchSampler(
+        dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        drop_last=True
+    )
+    train_loader = paddle.io.DataLoader(
+        dataset,
+        batch_sampler=batch_sampler,
+        num_workers=args.num_workers,
+        return_list=True,
+    )
+    return train_loader
 
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
-    batch_size = target.size(0)
+    batch_size = target.shape[0]
 
     _, pred = output.topk(maxk, 1, True, True)
     pred = pred.t()
-    correct = pred.eq(target.view(1, -1).expand_as(pred))
+    correct = pred.equal(target.reshape([1, -1]).expand_as(pred))
 
     res = []
     for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
-        res.append(correct_k.mul_(100.0 / batch_size))
+        correct_k = correct[:k].reshape([-1]).cast('float32').sum(0, keepdim=True)
+        res.append(correct_k.multiply(paddle.to_tensor([100.0 / batch_size], dtype=correct_k.dtype)))
     return res
 
 
@@ -55,15 +84,13 @@ def validate(model, val_loader):
     prec1_m = AverageMeter()
     last_idx = len(val_loader) - 1
 
-    with torch.no_grad():
+    with paddle.no_grad():
         for batch_idx, (input, target) in enumerate(val_loader):
             last_batch = batch_idx == last_idx
-            input = input.cuda()
-            target = target.cuda()
             output = model(input)
 
             prec1 = accuracy(output, target)
-            prec1_m.update(prec1[0].item(), output.size(0))
+            prec1_m.update(prec1[0].item(), output.shape[0])
 
             if (last_batch or batch_idx % 100 == 0):
                 log_name = 'ImageNet Test'
@@ -73,3 +100,36 @@ def validate(model, val_loader):
                         log_name, batch_idx, last_idx,
                         top1=prec1_m))
     return prec1_m
+
+def train(args, model, train_loader):
+    from paddle.distributed import fleet
+    def optimizer_setting():
+        import paddle.optimizer
+        import paddle.regularizer
+        optimizer = paddle.optimizer.SGD(
+            learning_rate=args.learning_rate,
+            parameters=model.parameters(),
+            weight_decay=paddle.regularizer.L2Decay(args.l2_decay)
+        )
+        return optimizer
+    fleet.init(is_collective=True)
+    optimizer = optimizer_setting()
+    optimizer = fleet.distributed_optimizer(optimizer)
+    model = fleet.distributed_model(model)
+    for eop in range(args.epoch_num):
+        model.train()
+        for batch_id, data in enumerate(train_loader()):
+            img, label = data
+            label.stop_gradient = True
+            out = model(img)
+            loss = paddle.nn.functional.cross_entropy(input=out, label=label)
+            avg_loss = paddle.mean(x=loss)
+            acc_top1 = paddle.metric.accuracy(input=out, label=label, k=1)
+            acc_top5 = paddle.metric.accuracy(input=out, label=label, k=5)
+            dy_out = avg_loss.numpy()
+            avg_loss.backward()
+            optimizer.minimize(avg_loss)
+            model.clear_gradients()
+            if batch_id % 5 == 0:
+                print("[Epoch %d, batch %d] loss: %.5f, acc1: %.5f, acc5: %.5f" % (eop, batch_id, dy_out, acc_top1, acc_top5))
+    return
