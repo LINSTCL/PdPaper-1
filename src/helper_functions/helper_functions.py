@@ -10,7 +10,7 @@ class my_DatasetFolder(paddle.vision.DatasetFolder):
             sample = self.transform(sample)
         print('1'+str(target))
         target = paddle.to_tensor([target])
-        print('2'+target)
+        print('2'+str(target))
         return sample, target
 
 def get_load_dataset(args, feed_list=None, place=None):
