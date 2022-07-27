@@ -8,7 +8,7 @@ class my_DatasetFolder(paddle.vision.DatasetFolder):
         sample = self.loader(path)
         if self.transform is not None:
             sample = self.transform(sample)
-        print('1'+target)
+        print('1'+str(target))
         target = paddle.to_tensor([target])
         print('2'+target)
         return sample, target
