@@ -46,6 +46,7 @@ def get_load_dataset(args, feed_list=None, place=None):
         batch_sampler=batch_sampler,
         num_workers=args.num_workers,
         return_list=True,
+        use_buffer_reader=False
     )
     return train_loader
 
