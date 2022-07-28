@@ -46,7 +46,6 @@ def get_load_dataset(args):
     train_loader = paddle.io.DataLoader(
         dataset,
         batch_sampler=batch_sampler,
-        num_workers=args.num_workers,
         return_list=True,
         use_shared_memory=False
     )
