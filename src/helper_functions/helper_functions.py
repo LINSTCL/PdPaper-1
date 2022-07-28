@@ -146,7 +146,7 @@ def train(args, model):
                 print(
                     "[Epoch %d, batch %d/%d] loss: %.5f, acc1: %.5f, acc5: %.5f" % (
                         eop,
-                        batch_id,
+                        batch_id*args.batch_size,
                         train_loader.dataset.__len__(),
                         dy_out,
                         acc_top1,
