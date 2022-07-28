@@ -34,29 +34,25 @@ def main():
     print('creating model...')
     model = create_model(args)
     params_path = Path(args.params_path)
-    try:
-        temp = params_path.resolve()
-    except FileNotFoundError:
-        # 不存在
+    if not params_path.exists():
         os.mkdir(args.params_path)
-    else:
-        # 存在
-        try:
-            temp = os.listdir(args.params_path)
-            if args.model_name not in temp:
-                print('creating now params...')
-                temp = os.getcwd()
-                os.chdir(args.params_path)
-                paddle.save(model.state_dict(), args.model_name+'.pdparams')
-                os.chdir(temp)
+    try:
+        temp = os.listdir(args.params_path)
+        print(temp)
+        if args.model_name not in temp:
+            print('creating new params...')
             temp = os.getcwd()
             os.chdir(args.params_path)
-            model_params = paddle.load(args.model_name+'.pdparams')
+            paddle.save(model.state_dict(), args.model_name+'.pdparams')
             os.chdir(temp)
-            model.set_state_dict(model_params)
-        except:
-            print('params load error')
-            return
+        temp = os.getcwd()
+        os.chdir(args.params_path)
+        model_params = paddle.load(args.model_name+'.pdparams')
+        os.chdir(temp)
+        model.set_state_dict(model_params)
+    except:
+        print('params load error')
+        return
     print('done\n')
 
     if args.train_mode == True:
