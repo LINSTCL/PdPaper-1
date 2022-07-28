@@ -133,6 +133,8 @@ def train(args, model):
     model = fleet.distributed_model(model)
 
     train_loader = get_load_dataset(args)
+    t1 = time.time()
+    t2 = time.time()
 
     for eop in range(args.epoch_num):
         model.train()
@@ -148,17 +150,20 @@ def train(args, model):
             avg_loss.backward()
             optimizer.minimize(avg_loss)
             model.clear_gradients()
-            if batch_id % 5 == 0:
+            t2 = time.time()
+            if batch_id % 10 == 0:
                 print(
-                    "[Epoch %d, batch %d/%d] loss: %.5f, acc1: %.5f, acc5: %.5f" % (
+                    "[Epoch %d, batch %d/%d, time %.2f] loss: %.5f, acc1: %.5f, acc5: %.5f" % (
                         eop,
                         batch_id*args.batch_size,
                         train_loader.dataset.__len__(),
+                        t2-t1,
                         dy_out,
                         acc_top1,
                         acc_top5
                     )
                 )
+                t1 = time.time()
         save_model(args, model)
         learning_rate.step()
         try:
