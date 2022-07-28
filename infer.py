@@ -3,6 +3,7 @@ import paddle
 import paddle.nn
 from src.models import create_model
 from src.helper_functions.helper_functions import *
+from paddle.distributed import fleet
 import numpy as np
 import argparse
 import os
@@ -32,6 +33,7 @@ def main():
     args = parser.parse_args()
     # setup model
     print('creating model...')
+    fleet.init(is_collective=True)
     model = create_model(args)
     params_path = Path(args.params_path)
     if not params_path.exists():

@@ -3,6 +3,7 @@ import paddle
 import paddle.nn
 import paddle.io
 import paddle.vision
+from paddle.distributed import fleet
 import numpy as np
 
 def save_model(args, model:paddle.nn.Layer):
@@ -111,18 +112,23 @@ def validate(model, val_loader):
     return prec1_m
 
 def train(args, model):
-    from paddle.distributed import fleet
     def optimizer_setting():
         import paddle.optimizer
         import paddle.regularizer
+        boundaries = [20, 40, 60, 80, 100]
+        values = [1, 0.5, 0.25, 0.1, 0.01, 0.002]
+        learning_rate = paddle.optimizer.lr.PiecewiseDecay(
+            boundaries= boundaries,
+            values=values,
+            verbose=True
+        )
         optimizer = paddle.optimizer.SGD(
-            learning_rate=args.learning_rate,
+            learning_rate=learning_rate,
             parameters=model.parameters(),
             weight_decay=paddle.regularizer.L2Decay(args.l2_decay)
         )
-        return optimizer
-    fleet.init(is_collective=True)
-    optimizer = optimizer_setting()
+        return optimizer, learning_rate
+    optimizer, learning_rate = optimizer_setting()
     optimizer = fleet.distributed_optimizer(optimizer)
     model = fleet.distributed_model(model)
 
@@ -153,5 +159,11 @@ def train(args, model):
                         acc_top5
                     )
                 )
-        save_model(model)
+        save_model(args, model)
+        learning_rate.step()
+        try:
+            os.system("cp ./temp/* /root/paddlejob/workspace/output/")
+        except:
+            print('参数文件转移失败')
+        print('params is save')
     return
