@@ -1,8 +1,15 @@
-import time
+import time, os
 import paddle
+import paddle.nn
 import paddle.io
 import paddle.vision
 import numpy as np
+
+def save_model(args, model:paddle.nn.Layer):
+    temp = os.getcwd()
+    os.chdir(args.params_path)
+    paddle.save(model.state_dict(), args.model_name+'.pdparams')
+    os.chdir(temp)
 
 class my_DatasetFolder(paddle.vision.DatasetFolder):
     def __getitem__(self, index):
@@ -136,5 +143,15 @@ def train(args, model):
             optimizer.minimize(avg_loss)
             model.clear_gradients()
             if batch_id % 5 == 0:
-                print("[Epoch %d, batch %d] loss: %.5f, acc1: %.5f, acc5: %.5f" % (eop, batch_id, dy_out, acc_top1, acc_top5))
+                print(
+                    "[Epoch %d, batch %d/%d] loss: %.5f, acc1: %.5f, acc5: %.5f" % (
+                        eop,
+                        batch_id,
+                        train_loader.dataset.__len__(),
+                        dy_out,
+                        acc_top1,
+                        acc_top5
+                    )
+                )
+        save_model(model)
     return
