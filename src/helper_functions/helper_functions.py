@@ -1,5 +1,7 @@
 import time
 import paddle
+import paddle.io
+import paddle.vision
 import numpy as np
 
 class my_DatasetFolder(paddle.vision.DatasetFolder):
@@ -9,8 +11,6 @@ class my_DatasetFolder(paddle.vision.DatasetFolder):
         if self.transform is not None:
             sample = self.transform(sample)
         target = paddle.to_tensor([target])
-        print(sample)
-        exit()
         return sample, target
 
 def get_load_dataset(args):
@@ -104,7 +104,7 @@ def validate(model, val_loader):
                         top1=prec1_m))
     return prec1_m
 
-def train(args, model, train_loader):
+def train(args, model):
     from paddle.distributed import fleet
     def optimizer_setting():
         import paddle.optimizer
@@ -119,6 +119,9 @@ def train(args, model, train_loader):
     optimizer = optimizer_setting()
     optimizer = fleet.distributed_optimizer(optimizer)
     model = fleet.distributed_model(model)
+
+    train_loader = get_load_dataset(args)
+
     for eop in range(args.epoch_num):
         model.train()
         for batch_id, data in enumerate(train_loader()):
