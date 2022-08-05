@@ -69,7 +69,7 @@ python run.py \
 --lr=0.2 \
 --l2_decay=0.0001
 ```
-<br>
+
 也支持多卡训练：
 ```bash
 python3 -m paddle.distributed.launch --gpus=0,1,2,3 run.py \
