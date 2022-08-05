@@ -85,7 +85,8 @@ def main():
         dataset = forecastDataset(args, tfms)
         f = open('./result.csv', 'w')
         f.write('ImagePath, result\n')
-        for img, path in dataset:
+        for idx in range(dataset.__len__()):
+            img, path = dataset.__getitem__(idx)
             out = model(img)
             _, pred = out.topk(1, 1, True, True)
             print(f'[{path}]=>({int(pred[0])})')
