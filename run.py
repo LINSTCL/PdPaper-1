@@ -89,7 +89,7 @@ def main():
             img, path = dataset.__getitem__(idx)
             out = model(img)
             _, pred = out.topk(1, 1, True, True)
-            print(f'[{path}]=>({int(pred[0])})')
+            print(f'${idx} [{path}]=>({int(pred[0])})')
             f.write(f'{path}, {int(pred[0])}\n')
         f.close()
         print('done\n')
