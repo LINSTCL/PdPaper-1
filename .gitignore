@@ -1,2 +1,9 @@
 *.pyc
 *.pdparams
+paddle_model
+torch_model
+result
+params
+make_data.py
+lite_data
+JITMODEL

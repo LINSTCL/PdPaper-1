@@ -3,12 +3,12 @@
 
 [paperV2](https://arxiv.org/pdf/2003.13630.pdf)
 
-TResNet的Paddle复现版
+Paddle replica of TResNet
 
 > Tal Ridnik, Hussam Lawen, Asaf Noy, Itamar Friedman, Emanuel Ben Baruch, Gilad Sharir<br/>
 > DAMO Academy, Alibaba Group
 
-**摘要**
+**Abstract**
 
 > Many deep learning models, developed in recent years, reach higher
 > ImageNet accuracy than ResNet50, with fewer or comparable FLOPS count.
@@ -31,7 +31,7 @@ TResNet的Paddle复现版
 
 
 ## Main Article Results && Reproduce Article Scores
-请参见[TResNet](https://github.com/Alibaba-MIIL/TResNet)
+See [TResNet](https://github.com/Alibaba-MIIL/TResNet)
 
 ## 参数文件下载
 [TResNet_m](https://github.com/LINSTCL/PdPaper-1/releases/download/v1.0.0/tresnet_m.pdparams)<br>
@@ -41,17 +41,8 @@ TResNet的Paddle复现版
 [TResNet_l_448](https://github.com/LINSTCL/PdPaper-1/releases/download/v1.0.0/tresnet_l_448.pdparams)<br>
 [TResNet_xl_448](https://github.com/LINSTCL/PdPaper-1/releases/download/v1.0.0/tresnet_xl_448.pdparams)<br>
 
-## 数据集
-[ImageNet1K-0](https://aistudio.baidu.com/aistudio/datasetdetail/114241)<br>
-[ImageNet1K-1](https://aistudio.baidu.com/aistudio/datasetdetail/114746)<br>
-
-## 环境依赖
-```bash
-pip install -r requirements.txt
-```
-
-## 论文结果重现
-在paddlepaddle环境中运行：
+## Reproduce Article Scores
+Run in the paddlepad environment:
 ```bash
 python run.py \
 --val_mode \
@@ -61,8 +52,8 @@ python run.py \
 --input_size=224
 ```
 
-## 预测
-在paddlepaddle环境中运行：
+## Execute forecast
+Run in the paddlepad environment:
 ```bash
 python run.py \
 --infer_mode \
@@ -72,8 +63,8 @@ python run.py \
 --input_size=224
 ```
 
-## 训练
-在paddlepaddle环境中运行：
+## TResNet Training
+Run in the paddlepad environment:
 ```bash
 python run.py \
 --train_mode \
@@ -87,7 +78,7 @@ python run.py \
 --l2_decay=0.0001
 ```
 
-也支持多卡训练：
+Multi card training is also supported:
 ```bash
 python3 -m paddle.distributed.launch --gpus=0,1,2,3 run.py \
 --train_mode \
@@ -115,6 +106,6 @@ python3 -m paddle.distributed.launch --gpus=0,1,2,3 run.py \
 ```
 
 ## Contact
-联系复现作者(linstcl.cn)
+Contact recurrence author (linstcl.cn)
 Feel free to contact me if there are any questions or issues (Tal
 Ridnik, tal.ridnik@alibaba-inc.com).
