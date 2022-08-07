@@ -23,7 +23,8 @@ from src.helper_functions.mixup import mixup_criterion, mixup_data, mixup_metric
 from src.AutoAugment.autoaugment import ImageNetPolicy
 
 def save_model(args, model:paddle.nn.Layer, epoch_num):
-    paddle.save(model.state_dict(), args.output_dir+'/'+str(epoch_num)+'-'+args.model_name+'.pdparams')
+    paddle.save(model.state_dict(), args.output_dir+'/'+args.model_name+'.pdparams')
+    # paddle.save(model.state_dict(), args.output_dir+'/'+str(epoch_num)+'-'+args.model_name+'.pdparams')
 
 class my_DatasetFolder(paddle.vision.DatasetFolder):
     def __getitem__(self, index):
