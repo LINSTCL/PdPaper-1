@@ -168,7 +168,6 @@ def train(args, model):
     optimizer = fleet.distributed_optimizer(optimizer)
     model = fleet.distributed_model(model)
     loss_fun = paddle.nn.CrossEntropyLoss()
-    scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
 
     train_loader = get_load_dataset(args)
 
