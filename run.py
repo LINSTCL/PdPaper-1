@@ -28,6 +28,7 @@ parser = argparse.ArgumentParser(description='PaddlePaddle TResNet ImageNet Infe
 parser.add_argument('--train_mode', action='store_true', default=False)
 parser.add_argument('--val_mode', action='store_true', default=False)
 parser.add_argument('--infer_mode', action='store_true', default=False)
+parser.add_argument('-y', action='store_true', default=False)
 
 parser.add_argument('--params_dir', type=str, default='params')
 parser.add_argument('--data_dir', type=str, default='train')
@@ -63,7 +64,11 @@ def main():
         if args.input_size == 224:
             if args.model_name+'.pdparams' not in temp:
                 print('no params...')
-                choice = input('Do you want to create a new parameter file? [y/N]')
+                print('Do you want to create a new parameter file? [y/N]')
+                if not args.y:
+                    choice = input()
+                else:
+                    choice = 'Y'
                 if choice in ['Y', 'y']:
                     if args.input_size == 224:
                         paddle.save(model.state_dict(), args.params_dir+'/'+args.model_name+'.pdparams')

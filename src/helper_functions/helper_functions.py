@@ -197,7 +197,8 @@ def train(args, model):
             batch_cost = reader_cost+batch_cost_t2-batch_cost_t1
             if batch_id % 1 == 0:
                 print(
-                    "[Epoch %d, batch %d/%d] loss: %.5f, acc: %.2f, reader_cost=%.2f sec, batch_cost=%.2f sec, ips=%.2f images/sec" % (
+                    "%s [Epoch %d, batch %d/%d] loss: %.5f, acc: %.2f, reader_cost=%.2f sec, batch_cost=%.2f sec, ips=%.2f images/sec" % (
+                        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
                         eop,
                         batch_id*args.batch_size,
                         train_loader.dataset.__len__(),
