@@ -19,6 +19,8 @@ import paddle.io
 import paddle.vision
 from paddle.distributed import fleet
 import PIL.Image
+from src.helper_functions.mixup import mixup_criterion, mixup_data, mixup_metric
+from src.AutoAugment.autoaugment import ImageNetPolicy
 
 def save_model(args, model:paddle.nn.Layer, epoch_num):
     paddle.save(model.state_dict(), args.output_dir+'/'+str(epoch_num)+'-'+args.model_name+'.pdparams')
@@ -40,6 +42,7 @@ def get_val_tfms(args):
         val_tfms = paddle.vision.transforms.Compose(
             [paddle.vision.transforms.Resize(int(args.input_size / args.val_zoom_factor)),
             paddle.vision.transforms.CenterCrop(args.input_size)])
+    val_tfms.transforms.append(ImageNetPolicy())
     val_tfms.transforms.append(paddle.vision.transforms.ToTensor())
     return val_tfms
 
@@ -147,50 +150,63 @@ def validate(model, val_loader):
     return prec1_m
 
 def train(args, model):
-    def optimizer_setting():
+    def optimizer_setting(model):
         import paddle.optimizer
         import paddle.regularizer
-        optimizer = paddle.optimizer.SGD(
+        lr = paddle.optimizer.lr.CosineAnnealingDecay(
             learning_rate=args.lr,
+            T_max=args.epoch_num
+        )
+        optimizer = paddle.optimizer.SGD(
+            learning_rate=lr,
             parameters=model.parameters(),
             weight_decay=paddle.regularizer.L2Decay(args.l2_decay)
         )
         return optimizer
-    optimizer = optimizer_setting()
+    optimizer = optimizer_setting(model)
     optimizer = fleet.distributed_optimizer(optimizer)
     model = fleet.distributed_model(model)
+    loss_fun = paddle.nn.CrossEntropyLoss()
+    scaler = paddle.amp.GradScaler(init_loss_scaling=1024)
 
     train_loader = get_load_dataset(args)
-    t1 = time.time()
-    t2 = time.time()
+
+    reader_cost_t1 = time.time()
+    reader_cost_t2 = time.time()
+    batch_cost_t1 = time.time()
+    batch_cost_t2 = time.time()
 
     for eop in range(args.epoch_num):
         model.train()
         for batch_id, data in enumerate(train_loader()):
             img, label = data
+            img_mixed, label_a, label_b, lam = mixup_data(img, label, args.mixup)
+            reader_cost_t2 = time.time()
             label.stop_gradient = True
-            out = model(img)
-            loss = paddle.nn.functional.cross_entropy(input=out, label=label)
+            batch_cost_t1 = time.time()
+            out = model(img_mixed)
+            loss = mixup_criterion(loss_fun, out, label_a, label_b, lam)
             avg_loss = paddle.mean(x=loss)
-            acc_top1 = paddle.metric.accuracy(input=out, label=label, k=1)
-            acc_top5 = paddle.metric.accuracy(input=out, label=label, k=5)
-            dy_out = avg_loss.numpy()
+            batch_cost_t2 = time.time()
+            acc = mixup_metric(paddle.metric.accuracy, out, label_a, label_b, lam)
             avg_loss.backward()
             optimizer.minimize(avg_loss)
             model.clear_gradients()
-            t2 = time.time()
-            if batch_id % 10 == 0:
+            reader_cost = reader_cost_t2-reader_cost_t1
+            batch_cost = reader_cost+batch_cost_t2-batch_cost_t1
+            if batch_id % 1 == 0:
                 print(
-                    "[Epoch %d, batch %d/%d, time %.2f] loss: %.5f, acc1: %.5f, acc5: %.5f" % (
+                    "[Epoch %d, batch %d/%d] loss: %.5f, acc: %.2f, reader_cost=%.2f sec, batch_cost=%.2f sec, ips=%.2f images/sec" % (
                         eop,
                         batch_id*args.batch_size,
                         train_loader.dataset.__len__(),
-                        t2-t1,
-                        dy_out,
-                        acc_top1,
-                        acc_top5
+                        avg_loss,
+                        acc*100,
+                        reader_cost,
+                        batch_cost,
+                        args.batch_size / batch_cost
                     )
                 )
-                t1 = time.time()
+            reader_cost_t1 = time.time()
         save_model(args, model, eop)
     return

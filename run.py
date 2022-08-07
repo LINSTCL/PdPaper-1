@@ -38,8 +38,9 @@ parser.add_argument('--num_classes', type=int, default=1000)
 parser.add_argument('--input_size', type=int, default=224)
 parser.add_argument('--val_zoom_factor', type=int, default=0.875)
 
-parser.add_argument('--lr', type=float, default=0.1)
-parser.add_argument('--l2_decay', type=float, default=0.1)
+parser.add_argument('--lr', type=float, default=0.6)
+parser.add_argument('--l2_decay', type=float, default=0.00001)
+parser.add_argument('--mixup', type=float, default=0.2)
 
 parser.add_argument('--batch_size', type=int, default=48)
 parser.add_argument('--epoch_num', type=int, default=300)

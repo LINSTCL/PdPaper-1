@@ -23,7 +23,6 @@ class FastGlobalAvgPool2d(nn.Layer):
 
     def forward(self, x):
         in_size = x.shape
-        print(in_size)
         if self.flatten:
             return x.reshape((in_size[0], in_size[1], in_size[2]*in_size[3])).mean(axis=2)
         else:
